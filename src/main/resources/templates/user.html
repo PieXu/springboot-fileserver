@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<div th:insert ="layout/header"></div>
+	<title>附件管理平台-用户列表</title>
+</head>
+<body class="layui-layout-body">
+	<div class="layui-layout layui-layout-admin">
+		<div class="layui-header">
+			<div th:replace="layout/nav" /> 
+		</div>
+		<div class="layui-body">
+			<div class="query_area">
+			    用户名： <div class="layui-inline query-div"><input class="layui-input" id="nameprama" autocomplete="off"></div>
+			    登录账号： <div class="layui-inline query-div"><input class="layui-input" id="loginnameparam" autocomplete="off"></div>
+			  <button class="layui-btn radius" id="search" data-type="reload">查  询</button>
+			</div>
+			<table id="user-table" class="layui-table" lay-filter="demo"></table>
+		</div>
+		<div th:replace="layout/footer"></div>
+	</div>
+
+
+<div id="user_edit" style="display: none;margin: 20px">
+	<form id="user_form" class="layui-form" method="post" action="">
+		 <input type="hidden" name="id" id="id" value=""/>
+		 <div class="layui-form-item">
+		    <label class="layui-form-label">用户名</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="name" id="name" lay-verify="title" autocomplete="off" placeholder="请输入用户名" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">登录账号</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="loginName" id="loginName" lay-verify="title" autocomplete="off" placeholder="请输入登录账号" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">密码</label>
+		    <div class="layui-input-block">
+		      <input type="password" name="password"  id="password" lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item layui-form-text">
+		    <label class="layui-form-label">备注信息</label>
+		    <div class="layui-input-block">
+		      <textarea placeholder="请输入备注信息内容" class="layui-textarea" name="comments" id="comments"></textarea>
+		    </div>
+		  </div>
+	</form>
+</div>
+
+<script type="text/html" id="toolbar">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm" lay-event="add" id="add">新增用户</button>
+    <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del" id="del">删除选中</button>
+  </div>
+</script>
+<script type="text/html" id="barDemo">
+	<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+ 	{{#  if(d.status == 'NORMAL'){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="freeze">冻结</a>
+    {{# }if(d.status =='FREZZ') { }}
+    <a class="layui-btn layui-btn-xs" lay-event="unfreeze">解冻</a>
+    {{# } }}
+</script>
+<script type="text/javascript"  th:inline="none" >
+	//JavaScript代码区域
+	var $,table;
+	layui.use(['form','jquery','util','table'], function() {
+		$ = layui.$;//重点处
+		table = layui.table;
+		var util = layui.util;
+		var form = layui.form
+		table.render({
+		   elem: '#user-table'
+		  ,url: 'user/list' //数据接口
+		  ,height:'full-175'
+		  ,toolbar: '#toolbar'
+		  ,cols: [
+		  [
+			 {type:'checkbox'}
+		    ,{field: 'name', title: '用户名',width:120}
+		    ,{field: 'loginName', title: '登录账号',width:120}
+		    ,{field: 'status', sort:true, title: '状态',width:120,align:'center',templet:function(d){if(d.status=='NORMAL'){return '正常'}else{return '冻结'}}}
+		    ,{field: 'authCode', title: '授权码',width:240}
+		    ,{field: 'comments', title: '备注'}
+		    ,{field: 'createTime',sort:true, title: '创建时间',width:180,templet:function(d){return util.toDateString(d.createTime, "yyyy-MM-dd HH:mm:ss");}}
+		    ,{field: 'updateTime',sort:true, title: '更新时间',width:180,templet:function(d){return util.toDateString(d.updateTime, "yyyy-MM-dd HH:mm:ss");}}
+		    ,{field: 'opt', title: '操作',width:120,toolbar: '#barDemo'}
+		    ]
+		 	]
+		  ,skin: 'row' //表格风格
+		  ,page: true //是否显示分页
+		  ,limits: [15,30,50]
+		  ,limit: 15 //每页默认显示的数量
+		  ,loading: true //请求数据时，是否显示loading 
+		});
+		
+		//监听工具条
+		table.on('tool(demo)', function(obj){
+		    var data = obj.data;
+		    if(obj.event === 'freeze'){
+		    	changeStatus(data.id,'FREZZ');
+		    } else if(obj.event === 'unfreeze'){
+		    	changeStatus(data.id,'NORMAL');
+		    } else if(obj.event === 'edit'){
+		    	addOrEdit(data);
+		    }
+		 });
+		 
+		//监听行工具事件
+		table.on('toolbar', function(obj){
+		   var checkStatus = table.checkStatus(obj.config.id);
+		   switch(obj.event){
+		     case 'del':
+		       var data = checkStatus.data;
+		       if(null != data && "" != data){
+		    	   var ids = "";
+			       $.each(JSON.parse(JSON.stringify(data)), function(i, n){
+			    	   ids += n.id+",";
+			    	});
+		    	   delFiles(ids);
+				}else{
+					layer.tips('请选择需要删除的用户',$('#del'),{
+	                     tips:[3,'#5fb878']
+	                })
+				}
+		     break;
+		     case 'add':
+		    	 addOrEdit();;
+		     break;
+		   };
+		});
+		
+		//自定义验证规则
+		  form.verify({
+		    title: function(value){
+		      if(value.length < 2){
+		        return '账号至少得2个字符啊';
+		      }
+		    }
+		    ,password: [
+		      /^[\S]{6,12}$/
+		      ,'密码必须6到12位，且不能出现空格'
+		    ]
+		    ,comments: function(value){
+	    	 if(value.length > 3000){
+		        return '备注不超过300字';
+		      }
+		    }
+		  });
+	
+		 $('#search').on('click', function(){
+			  table.reload('user-table',{where: {
+				  name: $("#nameprama").val(),
+				  loginName: $("#loginnameparam").val() 
+	          }});
+		  });
+		
+	});
+	
+	/*
+	* 新增或者编辑
+	*/
+	function addOrEdit(data)
+	{
+		$("#user_form")[0].reset();
+		if(data){
+			$("#user_form").find("#id").val(data.id);
+			$("#user_form").find("#name").val(data.name);
+			$("#user_form").find("#loginName").val(data.loginName);
+			$("#user_form").find("#password").val(data.password);
+			$("#user_form").find("#comments").val(data.comments);
+			$("#user_form").find("#password").attr("readonly",true);
+			$("#user_form").find("#loginName").attr("readonly",true);
+		}else{
+			$("#user_form").find("#id").val('');
+			$("#user_form").find("#password").removeAttr("readonly");
+			$("#user_form").find("#loginName").removeAttr("readonly");
+		}
+		var index = layer.open({
+			type: 1,
+			title: "编辑页面",
+			area: ["550px", "420px"],
+			btn: ['保存', '关闭'],
+			yes: function(){
+				$.ajax({
+				   type: "POST",
+				   url: "user/saveOrUpdate",
+				   data: $("#user_form").serialize() ,
+				   success: function(data){
+					   if( data.success == true){
+							layer.close(index);
+							table.reload('user-table',{});
+					   }else{
+						   layer.msg(data.message);
+					   }
+				   }
+				});
+		  	},
+			content: $("#user_edit")
+		});
+	}
+	
+
+	/*
+	* 更改状态
+	*/
+	function changeStatus(id,status)
+	{
+		if(id && status){
+	      layer.confirm('确定要修改用户的状态吗？', function(index){
+	    	  $.ajax({
+				   type: "POST",
+				   url: "user/changeStatus",
+				   data: {id:id,status:status},
+				   success: function(msg){
+					   layer.close(index);
+					   table.reload('user-table',{});
+				   }
+				});
+	        layer.close(index);
+	      });
+		}else{
+			layer.msg('操作参数正确，请联系管理员');
+		}
+	}
+	
+	/*
+	* 删除
+	*/
+	function delFiles(ids)
+	{
+		if(ids){
+		   layer.confirm('删除可能会影响系统正常运行，确定要删除吗？', function(index){
+			$.ajax({
+				   type: "POST",
+				   url: "user/delete",
+				   data: {ids:ids},
+				   success: function(msg){
+					   layer.close(index);
+					   table.reload('user-table',{});
+				   }
+				});
+			});
+		}
+	}
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<html>
+<head>
+	<title>登录--附件管理管理平台</title>
+	<div th:replace ="layout/header"></div>
+	<style type="text/css">
+		 body{overflow:hidden;}
+		.login_img{background-color: transparent;display: block;position: absolute;z-index: 1;top:0;}
+		.login{ height:260px;width:260px;padding: 20px;background-color:rgba(0,0,0,0.5);border-radius: 4px;position:absolute;left: 50%;top: 50%; margin:-150px 0 0 -150px;z-index:99;}
+		.login h1{ text-align:center; color:#fff; font-size:24px; margin-bottom:20px; }
+		.form_code{ position:relative;}
+		.form_code .code{ position:absolute; right:0; top:0px; cursor:pointer; border:1px solid #ddd  }
+		.login_btn{ width:100%; }
+	</style>
+</head>
+<body>
+ 	<img alt="背景图片" src="static/login/login.gif" height="100%" width="100%" class="login_img" >
+	<div class="login">
+	    <h1>附件管理平台-登录</h1>
+	    <form class="layui-form" action="login" method="post">
+	    	<div class="layui-form-item">
+				<input class="layui-input" name="username" placeholder="用户名" lay-verify="required" type="text" autocomplete="off">
+		    </div>
+		    <div class="layui-form-item">
+				<input class="layui-input" name="password" placeholder="密码" lay-verify="required" type="password" autocomplete="off">
+		    </div>
+		    <div class="layui-form-item form_code">
+				<input class="layui-input" name="code" placeholder="验证码" lay-verify="required" type="text" autocomplete="off">
+				<div class="code"><img src="getVerify" width="116" height="36" title="点击更换验证码" onclick="javascript:this.src= 'getVerify?'+Math.random();"></div>
+		    </div>
+			<button class="layui-btn login_btn" lay-submit lay-filter="login">登录</button>
+		</form>
+	</div>
+<script type="text/javascript" th:src="@{static/layui/layui.js}"></script>
+<script type="text/javascript">
+	layui.use(['form','layer'],function(){
+		var form = layui.form,
+			layer = parent.layer === undefined ? layui.layer : parent.layer,
+			$ = layui.jquery;
+		//登录
+		form.on("submit(login)",function(data){
+			 var load = layer.load(0,{shade:0.5});
+			 $.post("login",data.field,function(result){
+				  if(result.result == "success"){
+					   window.location.href= "main";
+				   }else{
+					   layer.close(load);
+					   layer.msg(result.message);
+				   }
+			  });
+			return false;
+		})
+	});
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!-- 底部固定区域 -->
+<div class="layui-footer" >
+	© CopyRight - 版权所有
+</div>
+<div id="change_pass"  style="display: none;margin: 20px">
+	<form action="" method="post" class="layui-form" id="form-changPass">
+		<input type="hidden" name="userId" th:value="${session._userId}"/>
+		 <div class="layui-form-item">
+		    <label class="layui-form-label">新密码：</label>
+		    <div class="layui-input-block">
+		      <input type="password" name="newpassword" id="newpassword" lay-verify="required" lay-reqtext="请输入新密码" autocomplete="off" placeholder="输入新密码" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">确认密码：</label>
+		    <div class="layui-input-block">
+		      <input type="password" name="newpassword2" id="newpassword2" lay-verify="required" lay-reqtext="请再次输入密码" autocomplete="off" placeholder="确认新密码" class="layui-input">
+		    </div>
+		  </div>
+		  <br/>
+		   <div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <button class="layui-btn" lay-submit lay-filter="changepass">立即提交</button>
+		    </div>
+		  </div>
+	</form>
+</div>
+<script type="text/javascript" th:src="@{static/layui/layui.js}"></script>
+<script type="text/javascript">
+var layer;
+layui.use(['form','element','layer','jquery'],function(){
+	var element = layui.element;
+	var form = layui.form
+	layer = parent.layer === undefined ? layui.layer : parent.layer;
+  	//监听提交
+    form.on('submit(changepass)', function(data){
+    	var pw1 = data.field.newpassword;
+    	var pw2 = data.field.newpassword2;
+    	if(pw1 == pw2){
+	    	$.post("changPass",data.field,function(result){
+				  if(result.result == "success"){
+					  layer.alert('密码已经修改成功，请重新登录', {closeBtn: 0}, function(){
+						  window.location.href= "logout";
+						});
+				   }else{
+					   layer.close(load);
+					   layer.msg(result.message);
+				   }
+			  });
+    	}else{
+    		layer.msg("确认密码与新密码不一致");
+    	}
+      return false;
+    });
+});
+
+function logout()
+{
+    layer.confirm('确定要退出吗？', function(index){
+      window.location.href= "/logout";
+      layer.close(index);
+    });
+}
+//修改密码
+function changePass(){
+	layer.open({
+	  type: 1,
+	  area: ['400px','260px'],
+	  shade:0.4,
+	  title: "修改密码", //不显示标题
+	  content: $('#change_pass') //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
+	});
+}
+</script>

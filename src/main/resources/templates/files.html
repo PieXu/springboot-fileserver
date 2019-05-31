@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<div th:insert ="layout/header"></div>
+	<title>附件管理平台-文件列表</title>
+</head>
+<body class="layui-layout-body">
+	<div class="layui-layout layui-layout-admin">
+		<div class="layui-header">
+			<div th:replace="layout/nav" /> 
+		</div>
+		<div class="layui-body">
+			<div class="query_area">
+			   文件名： <div class="layui-inline query-div"><input class="layui-input" name="name" id="name" autocomplete="off"></div>
+			   扩展名： <div class="layui-inline query-div"> <input class="layui-input" name="ext" id="ext" autocomplete="off"></div>
+			  <button class="layui-btn radius" id="search" data-type="reload">查  询</button>
+			</div>
+			<table id="file-table" class="layui-table" ></table>
+		</div>
+		<div th:replace="layout/footer"></div>
+	</div>
+<script type="text/html" id="toolbar">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del" id="del">删除选中</button>
+  </div>
+</script>
+<script type="text/javascript"  th:inline="none" >
+	//JavaScript代码区域
+	var $,table;
+	layui.use(['jquery','util','table'], function() {
+		$ = layui.$;//重点处
+		table = layui.table;
+		var util = layui.util;
+		table.render({
+		  elem: '#file-table'
+		  ,url: 'files/list' //数据接口
+		  ,height:'full-175'
+		 	,toolbar: '#toolbar'
+		  ,cols: [
+		  [
+		 	 {field: 'id',checkbox: true}
+		    ,{field: 'name', title: '文件名'}
+		    ,{field: 'type', title: '文件类型',width:100}
+		    ,{field: 'ext', title: '扩展名',width:100}
+		    ,{field: 'size', title: '文件大小 (KB)',width:120}
+		    ,{field: 'path', title: '路径'}
+		    ,{field: 'uploadUser', title: '上传人',width:100,sort:true}
+		    ,{field: 'remoteIp', title: '上传地址',width:150}
+		    ,{field: 'createTime',sort:true, title: '创建时间',width:180,templet:function(d){return util.toDateString(d.createTime, "yyyy-MM-dd HH:mm:ss");}}
+		  ]
+		 	]
+		  ,skin: 'row' //表格风格
+		  ,page: true //是否显示分页
+		  ,limits: [15,30,50]
+		  ,limit: 15 //每页默认显示的数量
+		  ,loading: true //请求数据时，是否显示loading 
+		});
+		 
+		//监听行工具事件
+		table.on('toolbar', function(obj){
+		   var checkStatus = table.checkStatus(obj.config.id);
+		   switch(obj.event){
+		     case 'del':
+		       var data = checkStatus.data;
+		       if(null != data && "" != data){
+		    	   var ids = "";
+			       $.each(JSON.parse(JSON.stringify(data)), function(i, n){
+			    	   ids += n.id+",";
+			    	});
+		    	   delFiles(ids);
+				}else{
+					layer.tips('请选择需要删除的行',$('#del'),{
+	                     tips:[3,'#5fb878']
+	                })
+				}
+		     break;
+		   };
+		});
+	
+		 $('#search').on('click', function(){
+			  table.reload('file-table',{where: {
+				  name: $("#name").val(),
+				  ext: $("#ext").val()
+	          }});
+		  });
+		
+	});
+	
+	
+	
+	/*
+	* 删除
+	*/
+	function delFiles(ids)
+	{
+		if(ids){
+		   layer.confirm('删除可能会影响系统正常运行，确定要删除吗？', function(index){
+			$.ajax({
+				   type: "POST",
+				   url: "files/delete",
+				   data: {ids:ids},
+				   success: function(msg){
+					   layer.close(index);
+					   table.reload('file-table',{});
+				   }
+				});
+			});
+		}
+	}
+	
+</script>
+</body>
+</html>

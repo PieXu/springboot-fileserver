@@ -1,0 +1,40 @@
+server:
+  port: 8090
+  tomcat: 
+    uri-encoding: UTF-8
+  
+spring: 
+  application:
+    name: Upload File Server
+  themleaf: 
+    suffix: .html
+    encoding: utf-8
+    cache: false
+    mode: LEGACYHTML5
+    
+  datasource: 
+    type: com.easysoft.commons.db.EasySoftDataSource
+    driver-class: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/upload?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: root 
+  servlet: 
+    multipart:  
+      enabled: true
+  http: 
+    encoding: 
+      force: true
+      enabled: true
+      charset: UTF-8
+    
+upload: 
+  fileserver: 
+    way: http
+    http: 
+      basepath: D:\Users\files
+      encoding: utf-8
+#    ftp: 
+#      server: 127.0.0.1
+#      port: 21
+#      username: ftpuser
+#      password: ftpuser

@@ -1,0 +1,28 @@
+<div class="layui-logo">附件管理平台</div>
+	<!-- 头部区域（可配合layui已有的水平导航） -->
+	<ul class="layui-nav layui-layout-left">
+		<li class="layui-nav-item" th:classappend="${path} eq 'main' ? 'active' : ''" ><a href="main">控制台</a></li>
+		<li class="layui-nav-item" th:if="${session.isSuper == 'Y'}" th:classappend="${path} eq 'user' ? 'active' : ''" ><a href="user">用户授权</a></li>
+		<li class="layui-nav-item" th:classappend="${path} eq 'files' ? 'active' : ''" ><a href="files">附件管理</a></li>
+		<!-- <li class="layui-nav-item"><a href="javascript:;">其它功能</a>
+			<dl class="layui-nav-child">
+				<dd>
+					<a href="">邮件管理</a>
+				</dd>
+				<dd>
+					<a href="">消息管理</a>
+				</dd>
+				<dd>
+					<a href="">授权管理</a>
+				</dd>
+			</dl>
+		</li> -->
+	</ul>
+	<ul class="layui-nav layui-layout-right">
+		<li class="layui-nav-item"><a href="javascript:;"><span th:text="${session.username}"></span><span class="layui-nav-more"></span></a>
+			<dl class="layui-nav-child layui-anim layui-anim-upbit">
+				<dd><a href="javascript:void(0);" onclick="changePass();">修改密码</a></dd>
+				<dd><a href="javascript:void(0);" onclick="logout();">退出账号</a></dd>
+			</dl>
+		</li>
+	</ul>
