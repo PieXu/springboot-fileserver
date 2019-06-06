@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.easysoft.commons.annotation.EnableMybatisDataSource;
+import com.easysoft.logs.annotation.EnableAuditLog;
 import com.innovate.filseserver.interceptor.LoginInterceptor;
 
 /**
@@ -19,6 +20,7 @@ import com.innovate.filseserver.interceptor.LoginInterceptor;
  */
 @SpringBootApplication
 @EnableMybatisDataSource
+@EnableAuditLog
 public class FileServerApp {
 	
 	public static void main(String[] args) {

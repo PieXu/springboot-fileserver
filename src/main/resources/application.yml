@@ -33,6 +33,11 @@ upload:
     http: 
       basepath: D:\Users\files
       encoding: utf-8
+
+easysoft: 
+  log: 
+    audit: 
+      enable: true
 #    ftp: 
 #      server: 127.0.0.1
 #      port: 21
