@@ -28,9 +28,7 @@ import com.innovate.filseserver.model.UploadFile;
 
 /**
  * Ftp连接断开工具类
- * 
  * @author IvanHsu
- *
  */
 @Component
 @EnableConfigurationProperties({ FtpProperties.class })
