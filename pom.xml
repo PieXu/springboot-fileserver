@@ -30,7 +30,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.easysoft.logs</groupId>
-			<artifactId>log-client</artifactId>
+			<artifactId>logs-client-starter</artifactId>
 			<version>version_0.0.1</version>
 		</dependency>
 
